@@ -18,10 +18,10 @@ function App() {
         <Navbar/>
         <Routes>
 					<Route path="/" element={<Home />} />
-          <Route path='/login' element={<Logins />} />
+          <Route path='/login' element={<Login />} />
 					<Route path="/profile" element={<Profile />} />
 					<Route path="/calculator" element={<Calculator />} />
-					<Route path="/register" element={<Register />} />
+					<Route path="/signup" element={<Register />} />
 				</Routes>
         {/* {
           currentForm === 'login'? <Login /> : <Register />

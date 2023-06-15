@@ -11,7 +11,7 @@ export const Home = () => {
       <Typography align='center' sx={{position: 'fixed', top: 500, left: 300}}>
         Monitor daily activities and discover<br/>personalized recommendations for<br/>reducing your environmental impact.
       </Typography>
-      <Button href="/register" variant="contained" align='center' sx={{position: 'fixed', top: 500, left: 1500}}>
+      <Button href="/signup" variant="contained" align='center' sx={{position: 'fixed', top: 500, left: 1500}}>
         Get Started
       </Button>
     </div>

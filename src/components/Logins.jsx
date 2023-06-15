@@ -3,7 +3,9 @@ import Input from "../UI/Input/Input";
 import Button from "../UI/Button/Button";
 import { useContext, useEffect, useReducer, useRef, useState } from "react";
 import classes from './Login.module.css';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
+import validation from "./LoginValidation";
 
 
 const emailReducer = (state, action) => {
@@ -31,6 +33,11 @@ const emailReducer = (state, action) => {
     // const [emailIsValid, setEmailIsValid] = useState();
     // const [enteredPassword, setEnteredPassword] = useState('');
     // const [passwordIsValid, setPasswordIsValid] = useState();
+    const [values, setValues] = useState({
+      name: '',
+      email: '',
+    })
+    const [errors, setErrors] = useState({});
     const [formIsValid, setFormIsValid] = useState(false);
   
     const [emailState, dispatchEmail] = useReducer(emailReducer, {
@@ -42,10 +49,10 @@ const emailReducer = (state, action) => {
       isValid: null,
     });
   
-    // const authCtx = useContext(AuthContext);
   
     const emailInputRef = useRef();
     const passwordInputRef = useRef();
+    const navigate = useNavigate();
   
     useEffect(() => {
       console.log('EFFECT RUNNING');
@@ -72,16 +79,14 @@ const emailReducer = (state, action) => {
   
     const emailChangeHandler = (event) => {
       dispatchEmail({ type: 'USER_INPUT', val: event.target.value });
-  
-      // setFormIsValid(
-      //   event.target.value.includes('@') && passwordState.isValid
-      // );
+      setValues(prev => ({...prev, [event.target.name]: [event.target.value]}))
+
     };
   
     const passwordChangeHandler = (event) => {
       dispatchPassword({ type: 'USER_INPUT', val: event.target.value });
+      setValues(prev => ({...prev, [event.target.name]: [event.target.value]}))
   
-      // setFormIsValid(emailState.isValid && event.target.value.trim().length > 6);
     };
   
     const validateEmailHandler = () => {
@@ -91,16 +96,25 @@ const emailReducer = (state, action) => {
     const validatePasswordHandler = () => {
       dispatchPassword({ type: 'INPUT_BLUR' });
     };
+    // const handleInput = (event) => {
+    //   setValues(prev => ({...prev, [event.target.name]: [event.target.value]}))
+    // }
   
     const submitHandler = (event) => {
       event.preventDefault();
-    //   if (formIsValid) {
-    //     authCtx.onLogin(emailState.value, passwordState.value); 
-    //   } else if (!emailIsValid) {
-    //     emailInputRef.current.focus();
-    //   } else {
-    //     passwordInputRef.current.focus();
-    //   }
+      setErrors(validation(values));
+      if (errors.email === "" && errors.password === "") {
+        axios.post('http://localhost:8081/login', values)
+        .then(res => {
+            if (res.data === "Success"){
+              navigate('/profile');
+            } else {
+              alert("No record Existed");
+            }
+        })
+        .catch(err => console.log(err));
+      }
+
     };
   
     return (
@@ -117,6 +131,7 @@ const emailReducer = (state, action) => {
                           value={emailState.value} 
                           onChange={emailChangeHandler} 
                           onBlur={validateEmailHandler} />
+                          {errors.email && <span className='text-danger'>{errors.email}</span>}
                     </div>
                     <div className='mb-3'>
                         <label htmlFor="password"><strong>Password</strong></label>
@@ -129,13 +144,12 @@ const emailReducer = (state, action) => {
                             onChange={passwordChangeHandler} 
                             onBlur={validatePasswordHandler}
                           />
-                        {/* <input  placeholder='Enter Password' 
-                        onChange={passwordChangeHandler} className='form-control rounded-0' /> */}
+                          {errors.password && <span className='text-danger'>{errors.password}</span>}
                     </div>
                     <Button type="submit" classname={classes.btn}><strong>Log in</strong></Button>
                 </form>
                 <p>Don't have account? Create one below.</p>
-                <Link to="/register" className='btn btn-default border w-100 bg-light rounded-0 text-decoration-none'>Create Account</Link> 
+                <Link to="/signup" className='btn btn-default border w-100 bg-light rounded-0 text-decoration-none'>Create Account</Link> 
             </div>
           </div>
     );

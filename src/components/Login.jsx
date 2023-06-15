@@ -1,8 +1,9 @@
 import React, { useState , useReducer, useRef } from 'react'
 import Button from '../UI/Button/Button'
 import classes from './Login.module.css';
-import validation from './RegisterValidation';
-import { Link } from 'react-router-dom';
+import validation from './LoginValidation';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 // const emailReducer = (state, action) => {
@@ -38,7 +39,7 @@ export const Login = () => {
   //   value: '',
   //   isValid: null,
   // });
-
+  const navigate = useNavigate();
   const [errors, setErrors] = useState([]);
 
   const handleInput = (event) => {
@@ -53,29 +54,44 @@ export const Login = () => {
   //   dispatchPassword({ type: 'INPUT_BLUR' });
   // };
 
-  const handleSubmit = (event) => {
+  const submitHandler = (event) => {
     event.preventDefault();
     setErrors(validation(values));
-  }
+    if (errors.email === "" && errors.password === "") {
+      axios.post('http://localhost:8081/login', values)
+      .then(res => {
+          if (res.data === "Success"){
+            navigate('/profile');
+          } else {
+            alert("No record Existed");
+          }
+      })
+      .catch(err => console.log(err));
+    }
+
+  };
 
   return (
     <div className='d-flex justify-content-center align-items-center bg-primary vh-100'>
-        <div className='bg-ECF0F3 p-3 rounded w-25'>
-            <form action ="" onSubmit={handleSubmit}>
+        <div className='bg-white p-3 rounded w-25'>
+            <h2>Log-In</h2>
+            <form action ="" onSubmit={submitHandler}>
                 <div className='mb-3'>
                     <label htmlFor="email"><strong>Email</strong></label>
-                    <input placeholder='Enter Email' 
-                    onChange={handleInput} className='form-control rounded-0' />
+                    <input placeholder='Enter Email' name='email'
+                    onChange={handleInput} className='form-control rounded-0'/>
+                    {errors.email && <span className='text-danger'>{errors.email}</span>}
                 </div>
                 <div className='mb-3'>
-                    <label htmlFor="password"><strong>Password</strong></label>
-                    <input  placeholder='Enter Password' 
-                    onChange={handleInput} className='form-control rounded-0' />
+                  <label htmlFor="password"><strong>Password</strong></label>                    
+                  <input type="password" placeholder='Enter Password' name='password'                    
+                  onChange={handleInput} className='form-control rounded-0'/>                    
+                  {errors.password && <span className='text-danger'> {errors.password}</span>}         
                 </div>
-                <Button type="submit" classname={classes.btn}><strong>Log in</strong></Button>
+                <Button type="submit" classname={classes.btn}><strong>Sign up</strong></Button>
             </form>
-            <p>Don't have account? Create one below.</p>
-            <Link to="/register" className='btn btn-default border w-100 bg-light rounded-0 text-decoration-none'>Create Account</Link> 
+            <p>You agree to terms amd policies</p>
+            <Link to="/login" className='btn btn-default border w-100 bg-light rounded-0 text-decoration-none'>Login</Link> 
         </div>
     </div>
   )
